@@ -1,0 +1,18 @@
+          ==============================
+          ||      -- SCRABBLE --      ||
+          ==============================
+
+  - Welcome to "Scrabble"!!
+  
+  Instructions:
+   · Start with a word on the center of the game board
+   · Choose letters to create your words
+   · Cross them on the grid consistently
+   · Continue until you can no longer add new words
+   · Get as many points as possible !!
+
+              +--------------------+
+              |   1) New game      |
+              |   2) High scores   |
+              |   0) Exit          |
+              +--------------------+
