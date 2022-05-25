@@ -53,7 +53,7 @@ def write_word(board, bag_of_pawns, player_pawns):
         else:
             validation = board.isPossible(word, x, y, direction)
             if not validation[0]:
-                input(validation[1])
+                input('\n' + validation[1])
             else:
                 board.placeWord(player_pawns, word, x, y, direction)
                 for _ in range(7 - player_pawns.getTotalPawns()):
@@ -75,8 +75,9 @@ def hint(board, player_pawns):
 
 def check_word(board, player_pawns):
     word = Word.readWord()
-    board.showWordPlacement(player_pawns, word)
-    input('\nPress ENTER to continue...')
+    if Dictionary.validateWord(word):
+        board.showWordPlacement(player_pawns, word)
+        input('\nPress ENTER to continue...')
 
 def letter_points():
     clear_screen()

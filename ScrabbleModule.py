@@ -202,7 +202,7 @@ class Dictionary():
             while not (line := Word.readWordFromFile(f)).isEmpty():
                 if word.areEqual(line):
                     return True
-            print(f'"{word}" not in dictionary!')
+            input(f'\n"{word}" not in dictionary...')
             return False
     
     @staticmethod
@@ -360,27 +360,27 @@ class Board():
             positions.extend([(x-1, y), (x+word.getLengthWord(), y)])
         if self.totalWords == 0:
             if (7, 7) not in positions[:-2]:
-                return False, 'No letter placed on the central square'
+                return False, 'No letter placed on the central square...'
         else:
-            if positions[-1][0] > 14 or positions[-1][1] > 14:
-                return False, 'Word out of the board'
+            if positions[-3][0] > 14 or positions[-3][1] > 14:
+                return False, 'Word out of the board...'
             for i in range(word.getLengthWord()):
                 if self.board[positions[i][0]][positions[i][1]] != ' ':
                     break
             else:
-                return False, 'Your word must include a previous existing letter on the board'
+                return False, 'Your word must include a previous existing letter on the board...'
             for i in range(word.getLengthWord()):
                 if self.board[positions[i][0]][positions[i][1]] != ' ' and self.board[positions[i][0]][positions[i][1]] != word.word[i]:
-                    return False, 'There already exists a different word in these positions'
+                    return False, 'There already exists a different word in these positions...'
             added_pawns = []
             for i in range(word.getLengthWord()):
                 if self.board[positions[i][0]][positions[i][1]] == ' ':
                     added_pawns.append(word.word[i])
             if len(added_pawns) == 0:
-                return False, 'You are not adding a single letter to the board'
+                return False, 'You are not adding a single letter to the board...'
             if ((positions[-2][0] != -1 and positions[-2][1] != -1 and self.board[positions[-2][0]][positions[-2][1]] != ' ') 
                 or (positions[-1][0] != 15 and positions[-1][1] != 15 and self.board[positions[-1][0]][positions[-1][1]] != ' ')):
-                return False, 'There are additional letters at the beginning or ending of your word'
+                return False, 'There are additional letters at the beginning or ending of your word...'
         return True, 'You can add your word'
 
     def getPawns(self, word, x, y, direction):
