@@ -64,8 +64,7 @@ def write_word(board, bag_of_pawns, player_pawns):
             else:
                 clear_screen()
                 board.showBoard()
-                print('Game Over! Your score is {}.'.format(board.score))
-                input('\nPress ENTER to continue...')
+                print('Game Over! Your score is {}.\n'.format(board.score))
                 return 1
             input('\nPress ENTER to continue...')
     return 0
@@ -96,13 +95,24 @@ def letter_points():
             print(line, end='')
     input('\n\nPress ENTER to continue...')
 
+def record_name(board):
+    import csv
+    from datetime import date
+    name = input('Introduce your name: ')
+    with open('high_scores.csv', 'a') as f:
+        writer = csv.writer(f)
+        writer.writerow([name, Board.score, board.totalWords, date.today().strftime('%Y-%m-%d')])
+
 def new_game():
     bag_of_pawns, player_pawns, board, game_over = initialize_game()
     while True:
         while (action := main_screen(board, bag_of_pawns, player_pawns)) != '0':
             if action == '1':
                 game_over = write_word(board, bag_of_pawns, player_pawns)
-                if game_over == 1: return 0
+                if game_over == 1:
+                    if Board.score > 0:
+                        record_name(board)
+                    return 0
             elif action == '2':
                 hint(board, player_pawns)
             elif action == '3':
@@ -113,11 +123,25 @@ def new_game():
         if ex == 'n':
             continue
         elif ex == 'y':
+            if Board.score > 0:
+                record_name(board)
             return 0
         else:
             print('Not a valid option!', end=' ')
             input('Press ENTER to continue...')
             continue
+
+def high_scores():
+    import pandas as pd
+    clear_screen()
+    scores = pd.read_csv('high_scores.csv')
+    scores.insert(loc = 0, column = 'Rank', value = scores['Score'].rank(ascending = False))
+    high_scores = scores.nsmallest(10, 'Rank')
+    blankIndex = ['']*len(high_scores)
+    high_scores.index = blankIndex
+    print('- High Scores:', end='\n\n')
+    print(high_scores)
+    input('\nPress ENTER to continue...')
 
 
 welcome('an')
@@ -128,7 +152,9 @@ while (option := input()) != '0':
         welcome('an')
         continue
     elif option == '2':
-        break
+        high_scores()
+        welcome('an')
+        continue
     else:
         welcome('valid')
 
