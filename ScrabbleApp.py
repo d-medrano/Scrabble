@@ -22,44 +22,53 @@ def initialize_game():
         player_pawns.addPawn(bag_of_pawns.takeRandomPawn())
     board = Board()
     Board.score = 0
-    return bag_of_pawns, player_pawns, board
+    return bag_of_pawns, player_pawns, board, 0
 
-def main_screen(board, player_pawns):
+def main_screen(board, bag_of_pawns, player_pawns):
     clear_screen()
     board.showBoard()
     print(13*' '+7*'+---'+'+'+15*' '+'+'+17*'-'+'+'+11*'-'+'+'+17*'-'+'+'+20*'-'+'+'+15*'-'+'+')
     print('    Letters: | {} | {} | {} | {} | {} | {} | {} |\t'.format(player_pawns.letters[0], player_pawns.letters[1], player_pawns.letters[2], player_pawns.letters[3], player_pawns.letters[4], player_pawns.letters[5], player_pawns.letters[6])+
     'Options: |  1) Write word  |  2) Hint  |  3) Check word  |  4) Letter points  |  0) End game  |')
     print(13*' '+7*'+---'+'+'+15*' '+'+'+17*'-'+'+'+11*'-'+'+'+17*'-'+'+'+20*'-'+'+'+15*'-'+'+')
-    option = input(57*' '+'What do you want to do? ')
+    remaining_letters = len(bag_of_pawns.letters)
+    print(13*' '+'Remaining letters: {}{}/100'.format('' if remaining_letters >= 10 else ' ' , remaining_letters), end='')
+    option = input(19*' '+'What do you want to do? ')
     while (option != '1') and (option != '2') and (option != '3') and (option != '4') and (option != '0'):
         option = input(57*' '+'Come on... what do you want to do? ')
+    print('')
     return option
 
 def write_word(board, bag_of_pawns, player_pawns):
-    while True:
-        word = Word.readWord()
-        if not Dictionary.validateWord(word):
-            break
-        while abs((x := int(input('- Position x (0-14): ')))-7) > 7:
-            pass
-        while abs((y := int(input('- Position y (0-14): ')))-7) > 7:
-            pass
-        while (direction := input('- Direction (horizontal - "H", vertical - "V"): ')) not in ['H', 'V', 'h', 'v']:
-            pass
-        needed_pawns = board.getPawns(word, x, y, direction)
-        if not FrequencyTable.isSubset(needed_pawns.getFrequency(), player_pawns.getFrequency()):
-            input('You do not have letters for that word...')
+    word = Word.readWord()
+    if not Dictionary.validateWord(word):
+        return 0
+    while abs((x := int(input('- Position x (0-14): ')))-7) > 7:
+        pass
+    while abs((y := int(input('- Position y (0-14): ')))-7) > 7:
+        pass
+    while (direction := input('- Direction (horizontal - "H", vertical - "V"): ')) not in ['H', 'V', 'h', 'v']:
+        pass
+    needed_pawns = board.getPawns(word, x, y, direction)
+    if not FrequencyTable.isSubset(needed_pawns.getFrequency(), player_pawns.getFrequency()):
+        input('You do not have letters for that word...')
+    else:
+        validation = board.isPossible(word, x, y, direction)
+        if not validation[0]:
+            input('\n' + validation[1])
         else:
-            validation = board.isPossible(word, x, y, direction)
-            if not validation[0]:
-                input('\n' + validation[1])
-            else:
-                board.placeWord(player_pawns, word, x, y, direction)
+            board.placeWord(player_pawns, word, x, y, direction)
+            if (7 - player_pawns.getTotalPawns()) < len(bag_of_pawns.letters):
                 for _ in range(7 - player_pawns.getTotalPawns()):
                     player_pawns.addPawn(bag_of_pawns.takeRandomPawn())
+            else:
+                clear_screen()
+                board.showBoard()
+                print('Game Over! Your score is {}.'.format(board.score))
                 input('\nPress ENTER to continue...')
-        break
+                return 1
+            input('\nPress ENTER to continue...')
+    return 0
 
 def hint(board, player_pawns):
     if board.totalWords == 0:
@@ -88,11 +97,12 @@ def letter_points():
     input('\n\nPress ENTER to continue...')
 
 def new_game():
-    bag_of_pawns, player_pawns, board = initialize_game()
+    bag_of_pawns, player_pawns, board, game_over = initialize_game()
     while True:
-        while (action := main_screen(board, player_pawns)) != '0':
+        while (action := main_screen(board, bag_of_pawns, player_pawns)) != '0':
             if action == '1':
-                write_word(board, bag_of_pawns, player_pawns)
+                game_over = write_word(board, bag_of_pawns, player_pawns)
+                if game_over == 1: return 0
             elif action == '2':
                 hint(board, player_pawns)
             elif action == '3':
@@ -103,7 +113,7 @@ def new_game():
         if ex == 'n':
             continue
         elif ex == 'y':
-            break
+            return 0
         else:
             print('Not a valid option!', end=' ')
             input('Press ENTER to continue...')
